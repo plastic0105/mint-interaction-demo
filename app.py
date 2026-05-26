@@ -152,28 +152,45 @@ with col_left:
     seq_b_val = st.text_area("B", value=ex["seq_b"], height=80,
                               label_visibility="collapsed", key=f"ta_b_{selected}")
 
-    _models_available = all(
-        (ROOT / f).exists() for f in ["mint.ckpt", "bernett_mlp.pth", "mint_repo"]
-    )
-    if _models_available:
+    _has_code = (ROOT / "mint_repo").exists()
+    _has_ckpt = (ROOT / "mint.ckpt").exists()
+    if _has_code and _has_ckpt:
         live_mode = st.checkbox(
             "Live mode  (run actual MINT inference, ~60 s on CPU)",
             value=False,
         )
+    elif _has_code and not _has_ckpt:
+        live_mode = st.checkbox(
+            "Live mode  (first use auto-downloads model from HuggingFace, ~3 min)",
+            value=False,
+        )
     else:
         live_mode = False
-        st.caption("Demo mode — pre-computed predictions (live inference not available in cloud deployment)")
+        st.caption("Demo mode — pre-computed predictions only")
     predict_btn = st.button(
         "Run MINT" if live_mode else "Show prediction",
         type="primary", use_container_width=True,
     )
 
 # ── Model loader ──────────────────────────────────────────────────────────────
-@st.cache_resource(show_spinner=False)
+@st.cache_resource(show_spinner="Loading MINT model — downloading checkpoint on first use (~3 min)...")
 def load_models():
     import torch
+    import requests
     from mint.helpers.extract import load_config, MINTWrapper
     from mint.helpers.predict import SimpleMLP
+
+    # Auto-download checkpoints from HuggingFace if not present (cloud deployment)
+    HF_BASE = "https://huggingface.co/varunullanat2012/mint/resolve/main"
+    for fname in ["mint.ckpt", "bernett_mlp.pth"]:
+        dest = ROOT / fname
+        if not dest.exists():
+            r = requests.get(f"{HF_BASE}/{fname}", stream=True, timeout=900)
+            r.raise_for_status()
+            with open(dest, "wb") as fh:
+                for chunk in r.iter_content(65536):
+                    fh.write(chunk)
+
     cfg     = load_config(str(ROOT / "mint_repo" / "data" / "esm2_t33_650M_UR50D.json"))
     wrapper = MINTWrapper(cfg, str(ROOT / "mint.ckpt"),
                           freeze_percent=1.0, use_multimer=True,
@@ -216,14 +233,10 @@ with col_right:
         st.session_state.pop("res_label", None)
 
         if live_mode:
-            missing = [f for f in ["mint.ckpt", "bernett_mlp.pth", "mint_repo"]
-                       if not (ROOT / f).exists()]
-            if missing:
-                st.error("Missing: " + ", ".join(missing))
-            elif len(seq_a_val.strip()) < 5 or len(seq_b_val.strip()) < 5:
+            if len(seq_a_val.strip()) < 5 or len(seq_b_val.strip()) < 5:
                 st.error("Sequence too short (minimum 5 residues).")
             else:
-                with st.spinner("Running MINT inference (ESM2-650M on CPU)..."):
+                with st.spinner("Running MINT inference — downloading model on first use..."):
                     result_score, result_label = run_inference(seq_a_val, seq_b_val)
                 st.session_state["res_score"] = result_score
                 st.session_state["res_label"] = result_label
