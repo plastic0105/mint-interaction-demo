@@ -152,10 +152,17 @@ with col_left:
     seq_b_val = st.text_area("B", value=ex["seq_b"], height=80,
                               label_visibility="collapsed", key=f"ta_b_{selected}")
 
-    live_mode = st.checkbox(
-        "Live mode  (run actual MINT inference, ~60 s on CPU)",
-        value=False,
+    _models_available = all(
+        (ROOT / f).exists() for f in ["mint.ckpt", "bernett_mlp.pth", "mint_repo"]
     )
+    if _models_available:
+        live_mode = st.checkbox(
+            "Live mode  (run actual MINT inference, ~60 s on CPU)",
+            value=False,
+        )
+    else:
+        live_mode = False
+        st.caption("Demo mode — pre-computed predictions (live inference not available in cloud deployment)")
     predict_btn = st.button(
         "Run MINT" if live_mode else "Show prediction",
         type="primary", use_container_width=True,
