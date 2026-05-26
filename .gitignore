@@ -1,0 +1,18 @@
+# Large model checkpoints — do NOT commit (too large for GitHub)
+*.ckpt
+*.pth
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# Conda / pip
+env/
+venv/
+.conda/
+
+# OS
+.DS_Store
+Thumbs.db
