@@ -161,7 +161,7 @@ with col_left:
         )
     elif _has_code and not _has_ckpt:
         live_mode = st.checkbox(
-            "Live mode  (first use auto-downloads model from HuggingFace, ~3 min)",
+            "Live mode  (run actual MINT inference)",
             value=False,
         )
     else:

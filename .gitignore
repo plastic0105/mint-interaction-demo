@@ -1,6 +1,16 @@
-# Large model checkpoints — do NOT commit (too large for GitHub)
+# Large model checkpoints — download locally via download_checkpoints.py
 *.ckpt
 *.pth
+
+# Generated / precomputed artifacts
+data/embeddings.npy
+data/pca_coords.npy
+data/pca_variance.npy
+qrcode.png
+
+# Internal project notes
+CLAUDE.md
+.claude/
 
 # Python
 __pycache__/
