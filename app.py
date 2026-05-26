@@ -48,6 +48,10 @@ st.markdown("""
   .score-no     { color: #b71c1c; }
   .verdict-text { font-size: 1.1rem; font-weight: 700;
                   letter-spacing: 0.12em; margin-top: 0.4rem; }
+  .verdict-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+                   text-transform: uppercase; opacity: 0.55; margin-bottom: 0.3rem; }
+  .verdict-sub  { font-size: 0.78rem; opacity: 0.65; margin-top: 0.5rem;
+                  font-style: italic; }
   .compare-row  { display: flex; justify-content: space-around;
                   margin-top: 1.2rem; font-size: 0.85rem; }
   .compare-cell { text-align: center; }
@@ -275,10 +279,17 @@ with col_right:
         st.markdown("**Protein B**")
         st.code(ex["seq_b"], language=None)
 
+        sub_text = (
+            "The model is confident these two proteins physically bind."
+            if is_pos else
+            "The model predicts these proteins do not physically bind."
+        )
         st.markdown(
             f'<div class="verdict-box {css_box}">'
+            f'<div class="verdict-label">Interaction Probability</div>'
             f'<div class="score-num {css_score}">{result_score:.1f}%</div>'
             f'<div class="verdict-text">{verdict}</div>'
+            f'<div class="verdict-sub">{sub_text}</div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -288,15 +299,21 @@ with col_right:
             neg = ex["neg_score"]
             base = orig_score if orig_score is not None else result_score
             st.markdown(
+                f'<div style="margin-top:1rem;font-size:0.70rem;font-weight:700;'
+                f'letter-spacing:0.12em;text-transform:uppercase;color:#888;'
+                f'text-align:center;">Specificity check — same amino acids, shuffled order</div>'
                 f'<div class="compare-row">'
                 f'<div class="compare-cell">'
                 f'<div class="compare-val" style="color:#1565c0">{base:.1f}%</div>'
-                f'<div>genuine pair</div></div>'
+                f'<div style="font-size:0.78rem;color:#555;">genuine sequence</div></div>'
                 f'<div style="font-size:1.4rem; align-self:center;">vs.</div>'
                 f'<div class="compare-cell">'
                 f'<div class="compare-val" style="color:#b71c1c">{neg:.1f}%</div>'
-                f'<div>shuffled control</div></div>'
-                f'</div>',
+                f'<div style="font-size:0.78rem;color:#555;">shuffled control</div></div>'
+                f'</div>'
+                f'<div style="text-align:center;font-size:0.72rem;color:#999;'
+                f'font-style:italic;margin-top:0.3rem;">'
+                f'Confirms the model reads sequence context, not just amino acid composition.</div>',
                 unsafe_allow_html=True,
             )
 
@@ -322,7 +339,8 @@ with col_right:
                         f'<div class="mut-box mut-yes">'
                         f'<div class="mut-tag" style="color:#1565c0">Original sequence</div>'
                         f'<div class="mut-num" style="color:#1565c0">{orig_score:.1f}%</div>'
-                        f'<div class="mut-tag" style="color:#1565c0">INTERACTS</div>'
+                        f'<div class="mut-tag" style="color:#1565c0">interaction probability</div>'
+                        f'<div class="mut-tag" style="color:#1565c0;margin-top:0.2rem">INTERACTS</div>'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
@@ -343,9 +361,10 @@ with col_right:
                     m_text  = "DOES NOT INTERACT" if result_score < 50 else "INTERACTS"
                     st.markdown(
                         f'<div class="mut-box {m_class}">'
-                        f'<div class="mut-tag" style="color:{m_color}">Mutated</div>'
+                        f'<div class="mut-tag" style="color:{m_color}">Mutated sequence</div>'
                         f'<div class="mut-num" style="color:{m_color}">{result_score:.1f}%</div>'
-                        f'<div class="mut-tag" style="color:{m_color}">{m_text}</div>'
+                        f'<div class="mut-tag" style="color:{m_color}">interaction probability</div>'
+                        f'<div class="mut-tag" style="color:{m_color};margin-top:0.2rem">{m_text}</div>'
                         f'</div>',
                         unsafe_allow_html=True,
                     )
