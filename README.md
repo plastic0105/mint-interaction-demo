@@ -3,7 +3,7 @@
 A Streamlit demo for the **MINT (Multimeric INteraction Transformer)** model.  
 Predicts whether two proteins physically interact, and lets you simulate the effect of a single amino-acid mutation.
 
-**Live demo:** https://plastic0105-mint-interaction-demo.hf.space
+**Live demo:** https://mint-interaction-demo.hf.space
 
 ---
 
@@ -82,10 +82,7 @@ mint-interaction-demo/
 ## Deployment
 
 The app is deployed on **HuggingFace Spaces** (Docker, 16 GB RAM) at:  
-https://huggingface.co/spaces/plastic0105/mint-interaction-demo
-
-A Streamlit Cloud version (demo mode only) is also available at:  
-https://mint-interaction-demo-7vywqw2zfp9pc93qu5evog.streamlit.app
+https://huggingface.co/spaces/mint-interaction/demo
 
 ---
 
